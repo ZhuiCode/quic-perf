@@ -1,4 +1,4 @@
-# quic-go perf
+# quic-perf
 
 This is a (partial) implementation of the [QUIC Perf Protocol](https://datatracker.ietf.org/doc/html/draft-banks-quic-performance-00).
 
