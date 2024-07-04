@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	utils "github.com/ZhuiCode/quic-perf/config"
 	"github.com/jessevdk/go-flags"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/qlog"
@@ -62,8 +63,8 @@ func RunClient(addr string, uploadBytes, downloadBytes uint64, keyLogFile io.Wri
 	if err != nil {
 		return err
 	}
-	log.Printf("uploaded %s: %.2fs (%s/s)", utils.formatBytes(uploadBytes), uploadTook.Seconds(), formatBytes(utils.bandwidth(uploadBytes, uploadTook)))
-	log.Printf("downloaded %s: %.2fs (%s/s)", formatBytes(downloadBytes), downloadTook.Seconds(), formatBytes(bandwidth(downloadBytes, downloadTook)))
+	log.Printf("uploaded %s: %.2fs (%s/s)", utils.formatBytes(uploadBytes), uploadTook.Seconds(), utils.formatBytes(utils.bandwidth(uploadBytes, uploadTook)))
+	log.Printf("downloaded %s: %.2fs (%s/s)", utils.formatBytes(downloadBytes), downloadTook.Seconds(), utils.formatBytes(utils.bandwidth(downloadBytes, downloadTook)))
 	json, err := json.Marshal(Result{
 		TimeSeconds:   time.Since(start).Seconds(),
 		Type:          "final",
