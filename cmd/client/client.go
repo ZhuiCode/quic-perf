@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -9,20 +9,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"quic-perf/utils"
 	"time"
 
-	utils "github.com/ZhuiCode/quic-perf/config"
 	"github.com/jessevdk/go-flags"
 	"github.com/quic-go/quic-go"
-	"github.com/quic-go/quic-go/qlog"
 )
-
-var config = &quic.Config{
-	// use massive flow control windows here to make sure that flow control is not the limiting factor
-	MaxConnectionReceiveWindow: 1 << 30,
-	MaxStreamReceiveWindow:     1 << 30,
-	Tracer:                     qlog.DefaultConnectionTracer,
-}
 
 type Options struct {
 	ServerAddress string `long:"server-address" description:"server address, required"`
@@ -50,7 +42,7 @@ func RunClient(addr string, uploadBytes, downloadBytes uint64, keyLogFile io.Wri
 			NextProtos:         []string{utils.ALPN},
 			KeyLogWriter:       keyLogFile,
 		},
-		config,
+		utils.QConfig,
 	)
 	if err != nil {
 		return err
@@ -63,8 +55,8 @@ func RunClient(addr string, uploadBytes, downloadBytes uint64, keyLogFile io.Wri
 	if err != nil {
 		return err
 	}
-	log.Printf("uploaded %s: %.2fs (%s/s)", utils.formatBytes(uploadBytes), uploadTook.Seconds(), utils.formatBytes(utils.bandwidth(uploadBytes, uploadTook)))
-	log.Printf("downloaded %s: %.2fs (%s/s)", utils.formatBytes(downloadBytes), downloadTook.Seconds(), utils.formatBytes(utils.bandwidth(downloadBytes, downloadTook)))
+	log.Printf("uploaded %s: %.2fs (%s/s)", utils.FormatBytes(uploadBytes), uploadTook.Seconds(), utils.FormatBytes(utils.Bandwidth(uploadBytes, uploadTook)))
+	log.Printf("downloaded %s: %.2fs (%s/s)", utils.FormatBytes(downloadBytes), downloadTook.Seconds(), utils.FormatBytes(utils.Bandwidth(downloadBytes, downloadTook)))
 	json, err := json.Marshal(Result{
 		TimeSeconds:   time.Since(start).Seconds(),
 		Type:          "final",
@@ -192,8 +184,8 @@ func main() {
 	}
 	if err := RunClient(
 		opt.ServerAddress,
-		ParseBytes(opt.UploadBytes),
-		ParseBytes(opt.DownloadBytes),
+		utils.ParseBytes(opt.UploadBytes),
+		utils.ParseBytes(opt.DownloadBytes),
 		keyLogFile,
 	); err != nil {
 		log.Fatal(err)

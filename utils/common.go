@@ -9,11 +9,11 @@ import (
 
 var kmgMap = map[string]uint64{"K": 1024, "M": 1024 * 1024, "G": 1024 * 1024 * 1024}
 
-func bandwidth(b uint64, d time.Duration) uint64 {
+func Bandwidth(b uint64, d time.Duration) uint64 {
 	return uint64(float64(b) / d.Seconds())
 }
 
-func formatBytes(b uint64) string {
+func FormatBytes(b uint64) string {
 	const unit = 1024
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
