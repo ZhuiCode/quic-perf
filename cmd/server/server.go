@@ -15,6 +15,7 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"quic-perf/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -68,7 +69,7 @@ func RunServer(addr string, keyLogFile io.Writer) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tlsConf.NextProtos = []string{internal.ALPN}
+	tlsConf.NextProtos = []string{utils.ALPN}
 	tlsConf.KeyLogWriter = keyLogFile
 
 	conf := config.Clone()
