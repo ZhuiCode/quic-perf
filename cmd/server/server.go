@@ -98,6 +98,7 @@ func handleConn(conn quic.Connection) error {
 		if err != nil {
 			return err
 		}
+		log.Println("AcceptStream ", str.StreamID())
 		go func(str quic.Stream) {
 			if err := handleServerStream(str); err != nil {
 				log.Printf("handling stream from %s failed: %s", conn.RemoteAddr(), err)

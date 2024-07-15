@@ -23,6 +23,7 @@ type Options struct {
 	UploadBytes   string `short:"u" long:"upload-bytes" description:"upload bytes #[KMG]"`
 	DownloadBytes string `short:"d" long:"download-bytes" description:"download bytes #[KMG]"`
 	KeyLogFile    string `long:"key-log" description:"export TLS keys"`
+	PkgSize       int    `short:"p" long:"pkg-size" description:"each package size,unit is kB"`
 }
 
 type Result struct {
@@ -33,7 +34,7 @@ type Result struct {
 	DownloadBytes uint64  `json:"downloadBytes"`
 }
 
-func RunClient(clientNo int, addr string, uploadBytes, downloadBytes uint64, keyLogFile io.Writer) error {
+func RunClient(clientNo, pkgSize int, addr string, uploadBytes, downloadBytes uint64, keyLogFile io.Writer) error {
 	start := time.Now()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -55,7 +56,7 @@ func RunClient(clientNo int, addr string, uploadBytes, downloadBytes uint64, key
 		return err
 	}
 	fmt.Println("stream id is ", str.StreamID())
-	uploadTook, downloadTook, err := handleClientStream(clientNo, str, uploadBytes, downloadBytes)
+	uploadTook, downloadTook, err := handleClientStream(clientNo, pkgSize, str, uploadBytes, downloadBytes)
 	if err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func RunClient(clientNo int, addr string, uploadBytes, downloadBytes uint64, key
 	return nil
 }
 
-func handleClientStream(clientID int, str io.ReadWriteCloser, uploadBytes, downloadBytes uint64) (uploadTook, downloadTook time.Duration, err error) {
+func handleClientStream(clientID, pkgSize int, str io.ReadWriteCloser, uploadBytes, downloadBytes uint64) (uploadTook, downloadTook time.Duration, err error) {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, downloadBytes)
 	if _, err := str.Write(b); err != nil {
@@ -82,7 +83,7 @@ func handleClientStream(clientID int, str io.ReadWriteCloser, uploadBytes, downl
 	}
 
 	// upload data
-	b = make([]byte, 16*1024)
+	b = make([]byte, pkgSize*1024)
 	uploadStart := time.Now()
 
 	lastReportTime := time.Now()
