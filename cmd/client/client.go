@@ -23,7 +23,7 @@ type Options struct {
 	UploadBytes   string `short:"u" long:"upload-bytes" description:"upload bytes #[KMG]"`
 	DownloadBytes string `short:"d" long:"download-bytes" description:"download bytes #[KMG]"`
 	KeyLogFile    string `long:"key-log" description:"export TLS keys"`
-	PkgSize       int    `short:"p" long:"pkg-size" description:"each package size,unit is kB"`
+	PkgSize       int    `short:"p" long:"pkg-size" description:"each package size,unit is KB, default is 16KB"`
 }
 
 type Result struct {
@@ -182,6 +182,10 @@ func main() {
 		parser.WriteHelp(os.Stdout)
 		os.Exit(1)
 	}
+	if opt.PkgSize == 0 {
+		parser.WriteHelp(os.Stdout)
+		opt.PkgSize = 16
+	}
 
 	var keyLogFile io.Writer
 	if opt.KeyLogFile != "" {
@@ -201,6 +205,7 @@ func main() {
 			defer wg.Done()
 			if err := RunClient(
 				num,
+				opt.PkgSize,
 				opt.ServerAddress,
 				utils.ParseBytes(opt.UploadBytes),
 				utils.ParseBytes(opt.DownloadBytes),
